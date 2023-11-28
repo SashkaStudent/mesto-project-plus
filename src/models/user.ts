@@ -1,5 +1,10 @@
-import { model, Model, Schema, Document } from "mongoose";
-import bcrypt from "bcrypt";
+import {
+  model,
+  Model,
+  Schema,
+  Document,
+} from 'mongoose';
+import bcrypt from 'bcrypt';
 
 export interface IUser {
   _id: string;
@@ -41,26 +46,26 @@ const userSchema = new Schema<IUser, UserModel>({
 });
 
 userSchema.static(
-  "findUserByCredentials",
+  'findUserByCredentials',
   function findUserByCredentials(name: string, password: string) {
     return this.findOne({ name }).then((user) => {
       if (!user) {
-        return Promise.reject(new Error("Неправильные имя или пароль"));
+        return Promise.reject(new Error('Неправильные имя или пароль'));
       }
 
       return bcrypt.compare(password, user.password).then((matched) => {
         if (!matched) {
-          return Promise.reject(new Error("Неправильные имя или пароль"));
+          return Promise.reject(new Error('Неправильные имя или пароль'));
         }
 
         return user;
       });
     });
-  }
+  },
 );
 
-const Users = model("Users", userSchema);
+const Users = model('Users', userSchema);
 
 Users.createIndexes();
 
-export default model<IUser, UserModel>("User", userSchema);
+export default model<IUser, UserModel>('User', userSchema);

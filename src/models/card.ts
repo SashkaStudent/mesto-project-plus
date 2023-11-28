@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
-import { IUser } from "./user";
+import mongoose from 'mongoose';
+import { IUser } from './user';
 
 export interface ICard {
   _id: string;
@@ -22,14 +22,14 @@ const cardScheme = new mongoose.Schema<ICard>({
     required: true,
   },
   likes: {
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     default: [],
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: 'User',
     required: true,
   },
 });
 
-export default mongoose.model<ICard>("Card", cardScheme);
+export default mongoose.model<ICard>('Card', cardScheme);

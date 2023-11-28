@@ -1,11 +1,11 @@
-import { Request, Response } from "express";
-import bcrypt from "bcrypt";
-import User, { IUser } from "../models/user";
+import { Request, Response } from 'express';
+import bcrypt from 'bcrypt';
+import User, { IUser } from '../models/user';
 import {
   DEFAULT_ERROR,
   INVALID_INPUT,
   NOT_FOUND,
-} from "../helpers/error-codes";
+} from '../helpers/error-codes';
 
 export interface TypedRequestBody<T> extends Express.Request {
   body: T;
@@ -55,8 +55,8 @@ export const getUser = (req: Request, res: Response) =>
   User.findOne({ _id: req.params.userId }, { name: 1, about: 1, avatar: 1 })
     .then((users) => res.send(users))
     .catch((err) => {
-      if (err.name === "CastError") {
-        err.message = "Запрашиваемый пользователь не найден";
+      if (err.name === 'CastError') {
+        err.message = 'Запрашиваемый пользователь не найден';
         res.status(NOT_FOUND).send(err);
       } else res.status(DEFAULT_ERROR).send(err);
     });
@@ -71,8 +71,8 @@ export const editUser = (req: Request, res: Response) => {
   )
     .then((user) => res.send({ user }))
     .catch((err) => {
-      if (err.name === "CastError") {
-        err.message = "Запрашиваемый пользователь не найден";
+      if (err.name === 'CastError') {
+        err.message = 'Запрашиваемый пользователь не найден';
         res.status(NOT_FOUND).send(err);
       } else res.status(DEFAULT_ERROR).send(err);
     });
@@ -87,8 +87,8 @@ export const editUserAvatar = (req: Request, res: Response) => {
   )
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === "CastError") {
-        err.message = "Запрашиваемый пользователь не найден";
+      if (err.name === 'CastError') {
+        err.message = 'Запрашиваемый пользователь не найден';
         res.status(NOT_FOUND).send(err);
       } else res.status(DEFAULT_ERROR).send(err);
     });

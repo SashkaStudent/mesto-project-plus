@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
-import { INVALID_INPUT } from "../helpers/error-codes";
-import Card, { ICard } from "../models/card";
+import { Request, Response } from 'express';
+import { INVALID_INPUT } from '../helpers/error-codes';
+import Card, { ICard } from '../models/card';
 
 export interface TypedRequestBody<T> extends Express.Request {
   body: T;
@@ -10,7 +10,7 @@ type CardRequest = TypedRequestBody<ICard>;
 
 export const getCards = (req: CardRequest, res: Response) => {
   Card.find({})
-    .populate("owner", { name: 1, about: 1, avatar: 1 })
+    .populate('owner', { name: 1, about: 1, avatar: 1 })
     .then((cards) => res.send(cards))
     .catch((err) => res.status(INVALID_INPUT).send(err));
 };

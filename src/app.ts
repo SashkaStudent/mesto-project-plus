@@ -1,11 +1,11 @@
-import express, { NextFunction, Response } from "express";
-import mongoose from "mongoose";
-import cardsRoutes from "./routes/cards";
-import usersRoutes from "./routes/users";
+import express, { NextFunction, Response } from 'express';
+import mongoose from 'mongoose';
+import cardsRoutes from './routes/cards';
+import usersRoutes from './routes/users';
 
-const { PORT = 3000, BASE_PATH = "" } = process.env;
+const { PORT = 3000, MONGO_URL = 'mongodb://localhost:27017/mydb' } = process.env;
 
-mongoose.connect("mongodb://localhost:27017/mydb");
+mongoose.connect(MONGO_URL);
 
 const app = express();
 
@@ -25,16 +25,16 @@ app.use(express.json());
 
 app.use((req: UserRequest, res: Response, next: NextFunction) => {
   req.body.user = {
-    _id: "656550e27c069a2b2ddc29a5",
+    _id: '656550e27c069a2b2ddc29a5',
   };
 
   next();
 });
 
-app.use("/users", usersRoutes);
+app.use('/users', usersRoutes);
 
-app.use("/cards", cardsRoutes);
+app.use('/cards', cardsRoutes);
 
 app.listen(PORT, () => {
-  console.log("Here we go again");
+  console.log('Here we go again');
 });
