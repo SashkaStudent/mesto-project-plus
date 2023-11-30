@@ -15,4 +15,5 @@ node_modules
 .vscode
 
 # Typescript build result
-dist 
+dist
+.env
