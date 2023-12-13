@@ -1,34 +1,59 @@
-import { Request, Response } from "express";
-import { castError, defaultError, inputError } from "../helpers/error-messaging";
-import {
-  DEFAULT_ERROR,
-  INVALID_INPUT,
-  NOT_FOUND,
-} from "../helpers/error-codes";
+import { NextFunction, Request, Response } from "express";
 import Card, { ICard } from "../models/card";
+import ApiError from "../helpers/types/error";
 
+export interface IRequest extends Request {
+  user?: { _id: string };
+}
 export interface TypedRequestBody<T> extends Express.Request {
   body: T;
 }
 
 type CardRequest = TypedRequestBody<ICard>;
 
-export const getCards = (req: CardRequest, res: Response) => {
+export const getCards = (
+  req: CardRequest,
+  res: Response,
+  next: NextFunction
+) => {
   Card.find({})
     .populate("owner", { name: 1, about: 1, avatar: 1 })
     .then((cards) => res.send(cards))
-    .catch((err) => res.status(INVALID_INPUT).send(inputError(err)));
+    .catch((err) => next(err));
 };
 
-export const postCard = (req: Request, res: Response) => {
+export const postCard = (req: Request, res: Response, next: NextFunction) => {
   const { name, link } = req.body;
+  console.log(req.body);
   const userId = req.body.user._id;
   Card.create({ name: name, link: link, owner: userId, likes: [] })
     .then((card) => res.send(card))
-    .catch((err) => res.status(INVALID_INPUT).send(inputError(err)));
+    .catch((err) =>
+      next(ApiError.InvalidInputError("Введены некорректные данные", err))
+    );
+};
+export const deleteCard = async (
+  req: IRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  const { cardId } = req.params;
+  Card.findById(cardId)
+    .populate("owner")
+    .then((card) => {
+      if (!card) return next(ApiError.NotFoundError());
+      if (card.owner._id.toString() !== req.body.user?._id)
+        return next(ApiError.ForbiddenError());
+      card.deleteOne().then((cardId) => res.send(cardId));
+    })
+    .catch((err) => {
+      if (err.name === "CastError") {
+        next(ApiError.InvalidInputError());
+      } else next(err);
+    });
 };
 
-export const likeCard = (req: Request, res: Response) => {
+export const likeCard = (req: Request, res: Response, next: NextFunction) => {
   const { cardId } = req.params;
   const userId = req.body.user._id;
   Card.findByIdAndUpdate(
@@ -36,22 +61,32 @@ export const likeCard = (req: Request, res: Response) => {
     { $addToSet: { likes: userId } },
     { new: true }
   )
-    .then((card) => res.send(card))
+    .then((card) => {
+      if (!card) return next(ApiError.NotFoundError());
+      res.send(card);
+    })
     .catch((err) => {
       if (err.name === "CastError") {
-        res.status(NOT_FOUND).send(castError(err, true));
-      } else res.status(DEFAULT_ERROR).send(defaultError(err));
+        next(ApiError.NotFoundError());
+      } else next(err);
     });
 };
 
-export const dislikeCard = (req: Request, res: Response) => {
+export const dislikeCard = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { cardId } = req.params;
   const userId = req.body.user._id;
   Card.findByIdAndUpdate(cardId, { $pull: { likes: userId } }, { new: true })
-    .then((card) => res.send(card))
+    .then((card) => {
+      if (!card) return next(ApiError.NotFoundError());
+      res.send(card);
+    })
     .catch((err) => {
       if (err.name === "CastError") {
-        res.status(NOT_FOUND).send(castError(err, true));
-      } else res.status(DEFAULT_ERROR).send(defaultError(err));
+        next(ApiError.NotFoundError());
+      } else next(err);
     });
 };

@@ -1,40 +1,25 @@
-import express, { NextFunction, Response } from 'express';
-import mongoose from 'mongoose';
-import cardsRoutes from './routes/cards';
-import usersRoutes from './routes/users';
+import express from "express";
+import error from "./middlewares/error";
+import mongoose from "mongoose";
+import notFoundRoute from "./routes/not-found";
+import cardsRoutes from "./routes/cards";
+import usersRoutes from "./routes/users";
+import { errors } from "celebrate";
 
-const { PORT = 3000, MONGO_URL = 'mongodb://localhost:27017/mydb' } = process.env;
-
+const { PORT = 3000, MONGO_URL = "mongodb://localhost:27017/mydb" } =
+  process.env;
 mongoose.connect(MONGO_URL);
 
 const app = express();
 
-type UserType = { _id: string };
-
-type UserReqParams = {
-  user: UserType;
-};
-
-export interface TypedRequestBody<T> extends Express.Request {
-  body: T;
-}
-
-type UserRequest = TypedRequestBody<UserReqParams>;
-
 app.use(express.json());
 
-app.use((req: UserRequest, res: Response, next: NextFunction) => {
-  req.body.user = {
-    _id: '656550e27c069a2b2ddc29a5',
-  };
+app.use("/users", usersRoutes);
+app.use("/cards", cardsRoutes);
+app.use("*", notFoundRoute);
 
-  next();
-});
-
-app.use('/users', usersRoutes);
-
-app.use('/cards', cardsRoutes);
-
+app.use(errors());
+app.use(error);
 app.listen(PORT, () => {
-  console.log('Here we go again');
+  console.log("Here we go again");
 });
