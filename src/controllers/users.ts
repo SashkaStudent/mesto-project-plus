@@ -11,6 +11,8 @@ export interface TypedRequestBody<T> extends Express.Request {
 
 export type UserRequest = TypedRequestBody<IUser>;
 
+const { SECRET = "super-strong-secret" } = process.env;
+
 export const createUser = (
   req: UserRequest,
   res: Response,
@@ -68,7 +70,7 @@ export const getUser = (req: Request, res: Response, next: NextFunction) =>
     .then((users) => res.send(users))
     .catch((err) => {
       if (err.name === "CastError") {
-        next(ApiError.NotFoundError());
+        next(ApiError.InvalidInputError());
       } else next(err);
     });}
 
@@ -81,7 +83,7 @@ export const getCurrent = (req: Request, res: Response, next: NextFunction) => {
     .then((user) => res.send({ user }))
     .catch((err) => {
       if (err.name === "CastError") {
-        next(ApiError.NotFoundError());
+        next(ApiError.InvalidInputError());
       } else next(err);
     });
 };
@@ -95,7 +97,7 @@ export const editUser = (req: Request, res: Response, next: NextFunction) => {
     .then((user) => res.send({ user }))
     .catch((err) => {
       if (err.name === "CastError") {
-        next(ApiError.NotFoundError());
+        next(ApiError.InvalidInputError());
       } else next(err);
     });
 };
@@ -114,7 +116,7 @@ export const editUserAvatar = (
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === "CastError") {
-        next(ApiError.NotFoundError());
+        next(ApiError.InvalidInputError());
       } else next(err);
     });
 };
@@ -124,7 +126,7 @@ export const login = (req: UserRequest, res: Response, next: NextFunction) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, "super-strong-secret", { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, SECRET, { expiresIn: '7d' });
       res.send(token);
     })
     .catch((err) => {

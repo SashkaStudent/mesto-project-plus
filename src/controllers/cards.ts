@@ -67,7 +67,7 @@ export const likeCard = (req: Request, res: Response, next: NextFunction) => {
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        next(ApiError.NotFoundError());
+        next(ApiError.InvalidInputError());
       } else next(err);
     });
 };
@@ -86,7 +86,7 @@ export const dislikeCard = (
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        next(ApiError.NotFoundError());
+        next(ApiError.InvalidInputError());
       } else next(err);
     });
 };
