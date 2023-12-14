@@ -32,7 +32,7 @@ export const postCard = (req: Request, res: Response, next: NextFunction) => {
       next(ApiError.InvalidInputError("Введены некорректные данные", err))
     );
 };
-export const deleteCard = async (
+export const deleteCard = (
   req: IRequest,
   res: Response,
   next: NextFunction

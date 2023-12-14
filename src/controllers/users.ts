@@ -53,24 +53,40 @@ export const createUser = (
     });
 };
 
-export const getUsers = (req: Request, res: Response, next: NextFunction) =>
+export const getUsers = (req: Request, res: Response, next: NextFunction) =>{
   User.find({ name: { $exists: true } }, { name: 1, about: 1, avatar: 1 })
     .then((users) => res.send(users))
     .catch((err) => {
       next(err);
     });
+  }
 
 export const getUser = (req: Request, res: Response, next: NextFunction) =>
+{
+
   User.findOne({ _id: req.params.userId }, { name: 1, about: 1, avatar: 1 })
     .then((users) => res.send(users))
     .catch((err) => {
       if (err.name === "CastError") {
         next(ApiError.NotFoundError());
       } else next(err);
+    });}
+
+export const getCurrent = (req: Request, res: Response, next: NextFunction) => {
+  console.log(req.body);
+
+  User.findById(
+    req.body.user._id,
+  )
+    .then((user) => res.send({ user }))
+    .catch((err) => {
+      if (err.name === "CastError") {
+        next(ApiError.NotFoundError());
+      } else next(err);
     });
+};
 
 export const editUser = (req: Request, res: Response, next: NextFunction) => {
-  console.log(req.body);
   User.findByIdAndUpdate(
     req.body.user._id,
     { name: req.body.name, about: req.body.about },
@@ -108,7 +124,7 @@ export const login = (req: UserRequest, res: Response, next: NextFunction) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, "super-strong-secret");
+      const token = jwt.sign({ _id: user._id }, "super-strong-secret", { expiresIn: '7d' });
       res.send(token);
     })
     .catch((err) => {
